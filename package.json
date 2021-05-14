@@ -1,0 +1,15 @@
+{
+  "name": "repos",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "johnny-five": "^2.0.0",
+    "rpi-ws281x": "^1.0.36"
+  }
+}
