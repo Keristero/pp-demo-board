@@ -6,31 +6,67 @@ const {AnimatedSection} = require('./AnimatedSection')
 var pot_reading;
 var switch_state = false
 
+const MAX_POT_VALUE = 1023
+const MIN_POT_VALUE = 0
+
+const SOLAR_PANEL_POWER = 5 //5kw
+const HOT_WATER_POWER = -2.4 //5kw
+const CAR_CHARGER_POWER = -8 //5kw
+
+let inputs = {
+    network_load_pot:0,
+    day_night:true,
+    hot_water:true,
+    ev_charger:true,
+    conductor_down:false
+}
+
+function determineNetworkConditions({network_load_pot,day_night,hot_water,ev_charger,conductor_down}){
+    let conditions = {
+        network_load_float:network_load_pot,
+        hot_water:true,
+        ev_charger:true,
+        high_network_load:false,
+        solar_generation:false,
+        conductor_down:conductor_down
+    }
+    if(network_load_pot > 0.6){
+        conditions.high_network_load = true
+        conditions.hot_water = false
+        if(inputs.network_load_pot > 0.8){
+            conditions.ev_charger = false
+        }
+    }
+    if(day_night){
+        conditions.solar_generation = true
+    }
+    if(!hot_water){
+        conditions.hot_water = false
+    }
+    if(!ev_charger){
+        conditions.ev_charger = false
+    }
+    return conditions
+}
+
 board.on("ready", () => {
-    var toggle = new Switch({
+    const potentiometer = new Sensor("A0");
+    potentiometer.on("change", () => {
+        inputs.network_load_pot = potentiometer.fscaleTo(0,1)
+        console.log(inputs.network_load_pot)
+    });
+
+    const day_night_switch = new Switch({
         pin: 4,
         type: "NC"
     });
-    const potentiometer = new Sensor("A0");
-
-    potentiometer.on("change", () => {
-        const { value, raw } = potentiometer;
-        pot_reading = value
-        console.log(pot_reading)
-    });
-
-    // Switch Event API
-
-    // "closed" the switch is closed
-    toggle.on("close", () => {
+    day_night_switch.on("close", () => {
+        inputs.day_night = false
         console.log("closed");
-        switch_state = false
     });
-
-    // "open" the switch is opened
-    toggle.on("open", () => {
+    day_night_switch.on("open", () => {
+        inputs.day_night = true
         console.log("open");
-        switch_state = true
     });
 });
 
@@ -56,6 +92,7 @@ class StripManager {
     }
 
     loop() {
+        let simulation_conditions = determineNetworkConditions(inputs)
         // Move on to next
         if (switch_state) {
             this.offset = (this.offset + 1) % this.config.leds;
@@ -84,30 +121,25 @@ class StripManager {
 
 var strip_manager = new StripManager();
 const animated_sections = []
-let test_strip_section = new AnimatedSection({
+
+let solar_to_house = new AnimatedSection({
     start_led: 0,
+    end_led: 5,
+    direction_callback: ({solar_generation}) => {
+        return (solar_generation*SOLAR_PANEL_POWER)
+    }
+})
+animated_sections.push(solar_to_house)
+
+let house_to_pole = new AnimatedSection({
+    start_led: 10,
     end_led: 20,
-    direction_callback: (conditions) => {
-        return -20
+    direction_callback: ({solar_generation,hot_water,ev_charger}) => {
+        let direction = (solar_generation*SOLAR_PANEL_POWER)+(hot_water*HOT_WATER_POWER)+(ev_charger*CAR_CHARGER_POWER)
+        return direction
     }
 })
-animated_sections.push(test_strip_section)
-let test_strip_section_2 = new AnimatedSection({
-    start_led: 21,
-    end_led: 41,
-    direction_callback: (conditions) => {
-        return -20
-    }
-})
-animated_sections.push(test_strip_section_2)
-let test_strip_section_3 = new AnimatedSection({
-    start_led: 50,
-    end_led: 100,
-    direction_callback: (conditions) => {
-        return -5
-    }
-})
-animated_sections.push(test_strip_section_3)
+animated_sections.push(house_to_pole)
 
 const simulation_conditions = {}
 strip_manager.run();
