@@ -2,7 +2,9 @@ const ws281x = require('rpi-ws281x');
 const { Board, Sensor, Switch } = require("johnny-five");
 const { rgb_to_decimal } = require('./helpers.js')
 const board = new Board();
-const {AnimatedSection} = require('./AnimatedSection')
+const {EnergyDirectionSection} = require('./EnergyDirectionSection')
+const {PixelIndicatorSection} = require('./PixelIndicatorSection')
+const {DayNightSection} = require('./DayNightSection')
 var pot_reading;
 var switch_state = false
 
@@ -53,7 +55,6 @@ board.on("ready", () => {
     const potentiometer = new Sensor("A0");
     potentiometer.on("change", () => {
         inputs.network_load_pot = potentiometer.fscaleTo(0,1)
-        console.log(inputs.network_load_pot)
     });
 
     const day_night_switch = new Switch({
@@ -122,24 +123,70 @@ class StripManager {
 var strip_manager = new StripManager();
 const animated_sections = []
 
-let solar_to_house = new AnimatedSection({
-    start_led: 0,
-    end_led: 5,
-    direction_callback: ({solar_generation}) => {
-        return (solar_generation*SOLAR_PANEL_POWER)
-    }
+//Led strip sections
+let day_night_section = new DayNightSection({start_led: 0,end_led: 30,
+    is_day_callback: ({solar_generation}) => {return solar_generation}
+})
+animated_sections.push(day_night_section)
+
+let pixel_high_network_load_section = new PixelIndicatorSection({led_index:31,
+    lit_callback:({high_network_load})=>{return high_network_load},
+    on_rgb_color:{r:255,g:0,b:0}
+})
+animated_sections.push(pixel_high_network_load_section)
+
+let pixel_conductor_down_section = new PixelIndicatorSection({led_index:32,
+    lit_callback:({conductor_down})=>{return conductor_down},
+    on_rgb_color:{r:255,g:0,b:0}
+})
+animated_sections.push(pixel_conductor_down_section)
+
+let solar_to_house = new EnergyDirectionSection({start_led: 33,end_led: 43,
+    direction_callback: ({solar_generation}) => {return (solar_generation*SOLAR_PANEL_POWER)}
 })
 animated_sections.push(solar_to_house)
 
-let house_to_pole = new AnimatedSection({
-    start_led: 10,
-    end_led: 20,
+let pixel_hot_water_section = new PixelIndicatorSection({led_index:44,
+    lit_callback:({hot_water})=>{return hot_water},
+    on_rgb_color:{r:255,g:128,b:0}
+})
+animated_sections.push(pixel_hot_water_section)
+
+let pixel_ev_charger_section = new PixelIndicatorSection({led_index:45,
+    lit_callback:({ev_charger})=>{return ev_charger},
+    on_rgb_color:{r:255,g:128,b:0}
+})
+animated_sections.push(pixel_ev_charger_section)
+
+let house_to_m11 = new EnergyDirectionSection({
+    start_led: 46,
+    end_led: 61,
     direction_callback: ({solar_generation,hot_water,ev_charger}) => {
         let direction = (solar_generation*SOLAR_PANEL_POWER)+(hot_water*HOT_WATER_POWER)+(ev_charger*CAR_CHARGER_POWER)
         return direction
     }
 })
-animated_sections.push(house_to_pole)
+animated_sections.push(house_to_m11)
+
+let m11_to_m31 = new EnergyDirectionSection({
+    start_led: 62,
+    end_led: 77,
+    direction_callback: ({solar_generation,hot_water,ev_charger}) => {
+        let direction = (-10)+(solar_generation*SOLAR_PANEL_POWER)+(hot_water*HOT_WATER_POWER)+(ev_charger*CAR_CHARGER_POWER)
+        return direction
+    }
+})
+animated_sections.push(m11_to_m31)
+
+let m31_to_grid = new EnergyDirectionSection({
+    start_led: 78,
+    end_led: 98,
+    direction_callback: ({solar_generation,hot_water,ev_charger,network_load_float}) => {
+        let direction = (-50*network_load_float)+(-10)+(solar_generation*SOLAR_PANEL_POWER)+(hot_water*HOT_WATER_POWER)+(ev_charger*CAR_CHARGER_POWER)
+        return direction
+    }
+})
+animated_sections.push(m31_to_grid)
 
 const simulation_conditions = {}
 strip_manager.run();
