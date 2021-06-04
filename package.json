@@ -11,6 +11,7 @@
   "dependencies": {
     "johnny-five": "^2.0.0",
     "pg": "^8.6.0",
+    "pg-promise": "^10.10.2",
     "rpi-ws281x": "^1.0.36"
   }
 }

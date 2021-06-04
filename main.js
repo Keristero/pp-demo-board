@@ -4,6 +4,7 @@ const {EnergyDirectionSection} = require('./EnergyDirectionSection')
 const {PixelIndicatorSection} = require('./PixelIndicatorSection')
 const {DayNightSection} = require('./DayNightSection')
 const StripManager = require('./StripManager')
+const {generate_fake_data} = require('./FakeDataGenerator')
 var pot_reading;
 var switch_state = false
 
@@ -137,9 +138,15 @@ let m31_to_grid = new EnergyDirectionSection({
 })
 strip_manager.add_animated_section(m31_to_grid)
 
-const simulation_conditions = {}
+
+//Main loop
+let network_conditions
+setInterval(() => {
+    network_conditions = determineNetworkConditions(inputs)
+    //strip_manager.loop(network_conditions)
+}, 5)
 
 setInterval(() => {
-    let network_conditions = determineNetworkConditions(inputs)
-    strip_manager.loop(network_conditions)
-}, 5)
+    network_conditions = determineNetworkConditions(inputs)
+    generate_fake_data(network_conditions)
+}, 1000)

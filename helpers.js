@@ -12,4 +12,8 @@ function decimal_to_rgb(decimal_color){
   return rgb
 }
 
-module.exports = {rgb_to_decimal,decimal_to_rgb}
+function RNG(min,max){
+    return (Math.random()*(max-min+1)+min);
+}
+
+module.exports = {rgb_to_decimal,decimal_to_rgb,RNG}
