@@ -1,10 +1,9 @@
-const ws281x = require('rpi-ws281x');
 const { Board, Sensor, Switch } = require("johnny-five");
-const { rgb_to_decimal } = require('./helpers.js')
 const board = new Board();
 const {EnergyDirectionSection} = require('./EnergyDirectionSection')
 const {PixelIndicatorSection} = require('./PixelIndicatorSection')
 const {DayNightSection} = require('./DayNightSection')
+const StripManager = require('./StripManager')
 var pot_reading;
 var switch_state = false
 
@@ -71,92 +70,42 @@ board.on("ready", () => {
     });
 });
 
-
-class StripManager {
-    constructor() {
-        // Set my Neopixel configuration
-        this.config = {
-            leds: 300,
-            gpio: 12,
-            stripType: 'grb',
-            dma: 10
-        };
-
-        this.rgb_pixels = []
-        for (let i = 0; i < this.config.leds; i++) {
-            this.rgb_pixels.push({ r: 0, g: 0, b: 0 })
-        }
-        this.uint_pixels = new Uint32Array(this.config.leds);
-
-        // Configure ws281x
-        ws281x.configure(this.config);
-    }
-
-    loop() {
-        let simulation_conditions = determineNetworkConditions(inputs)
-        // Move on to next
-        if (switch_state) {
-            this.offset = (this.offset + 1) % this.config.leds;
-        }
-
-        for (let animated_section of animated_sections) {
-            animated_section.UpdateStrip(this.rgb_pixels,simulation_conditions)
-        }
-
-        // Convert rgb values to uint for rendering to strip
-        for (let index in this.rgb_pixels) {
-            let rgb = this.rgb_pixels[index]
-            this.uint_pixels[index] = rgb_to_decimal(rgb)
-        }
-        // Render to strip
-        ws281x.render(this.uint_pixels);
-    }
-
-    run() {
-        // Loop every 100 ms
-        setInterval(() => {
-            this.loop()
-        }, 5)
-    }
-};
-
 var strip_manager = new StripManager();
-const animated_sections = []
 
 //Led strip sections
 let day_night_section = new DayNightSection({start_led: 0,end_led: 30,
     is_day_callback: ({solar_generation}) => {return solar_generation}
 })
-animated_sections.push(day_night_section)
+strip_manager.add_animated_section(day_night_section)
 
 let pixel_high_network_load_section = new PixelIndicatorSection({led_index:31,
     lit_callback:({high_network_load})=>{return high_network_load},
     on_rgb_color:{r:255,g:0,b:0}
 })
-animated_sections.push(pixel_high_network_load_section)
+strip_manager.add_animated_section(pixel_high_network_load_section)
 
 let pixel_conductor_down_section = new PixelIndicatorSection({led_index:32,
     lit_callback:({conductor_down})=>{return conductor_down},
     on_rgb_color:{r:255,g:0,b:0}
 })
-animated_sections.push(pixel_conductor_down_section)
+strip_manager.add_animated_section(pixel_conductor_down_section)
 
 let solar_to_house = new EnergyDirectionSection({start_led: 33,end_led: 43,
     direction_callback: ({solar_generation}) => {return (solar_generation*SOLAR_PANEL_POWER)}
 })
-animated_sections.push(solar_to_house)
+strip_manager.add_animated_section(solar_to_house)
 
 let pixel_hot_water_section = new PixelIndicatorSection({led_index:44,
     lit_callback:({hot_water})=>{return hot_water},
     on_rgb_color:{r:255,g:128,b:0}
 })
-animated_sections.push(pixel_hot_water_section)
+strip_manager.add_animated_section(pixel_hot_water_section)
 
 let pixel_ev_charger_section = new PixelIndicatorSection({led_index:45,
     lit_callback:({ev_charger})=>{return ev_charger},
     on_rgb_color:{r:255,g:128,b:0}
 })
-animated_sections.push(pixel_ev_charger_section)
+strip_manager.add_animated_section(pixel_ev_charger_section)
 
 let house_to_m11 = new EnergyDirectionSection({
     start_led: 46,
@@ -166,7 +115,7 @@ let house_to_m11 = new EnergyDirectionSection({
         return direction
     }
 })
-animated_sections.push(house_to_m11)
+strip_manager.add_animated_section(house_to_m11)
 
 let m11_to_m31 = new EnergyDirectionSection({
     start_led: 62,
@@ -176,7 +125,7 @@ let m11_to_m31 = new EnergyDirectionSection({
         return direction
     }
 })
-animated_sections.push(m11_to_m31)
+strip_manager.add_animated_section(m11_to_m31)
 
 let m31_to_grid = new EnergyDirectionSection({
     start_led: 78,
@@ -186,7 +135,11 @@ let m31_to_grid = new EnergyDirectionSection({
         return direction
     }
 })
-animated_sections.push(m31_to_grid)
+strip_manager.add_animated_section(m31_to_grid)
 
 const simulation_conditions = {}
-strip_manager.run();
+
+setInterval(() => {
+    let network_conditions = determineNetworkConditions(inputs)
+    strip_manager.loop(network_conditions)
+}, 5)
