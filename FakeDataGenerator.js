@@ -30,7 +30,6 @@ function generate_m11_fake_data(simulation_conditions){
 }
 
 function generate_fake_data(simulation_conditions){
-    console.log(simulation_conditions)
     generate_m11_fake_data(simulation_conditions)
 }
 

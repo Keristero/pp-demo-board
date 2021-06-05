@@ -20,7 +20,15 @@ let inputs = {
     conductor_down:false
 }
 
-function determineNetworkConditions({network_load_pot,day_night,hot_water,ev_charger,conductor_down}){
+function debounce_pot_threshhold(threshhold,was_over_threshold,debounce_amount){
+    if(!was_over_threshold){
+        return threshhold
+    }else{
+        return threshhold-debounce_amount
+    }
+}
+
+function determineNetworkConditions({network_load_pot,day_night,hot_water,ev_charger,conductor_down},last_coditions){
     let conditions = {
         network_load_float:network_load_pot,
         hot_water:true,
@@ -29,11 +37,14 @@ function determineNetworkConditions({network_load_pot,day_night,hot_water,ev_cha
         solar_generation:false,
         conductor_down:conductor_down
     }
-    if(network_load_pot > 0.6){
-        conditions.high_network_load = true
-        conditions.hot_water = false
-        if(inputs.network_load_pot > 0.8){
-            conditions.ev_charger = false
+    //Read pot with debounce
+    if(last_coditions){
+        if(network_load_pot > debounce_pot_threshhold(0.6,!last_coditions.hot_water,0.05)){
+            conditions.high_network_load = true
+            conditions.hot_water = false
+            if(inputs.network_load_pot > debounce_pot_threshhold(0.8,!last_coditions.ev_charger,0.05)){
+                conditions.ev_charger = false
+            }
         }
     }
     if(day_night){
@@ -69,22 +80,29 @@ board.on("ready", function(){
 
     const hot_water_relay = new Pin(12);
     const ev_charger_relay = new Pin(13);
+    let last_hot_water_state = false
+    let last_ev_charger_state = false
     this.loop(250, ()=>{
         if(network_conditions){
-            if(network_conditions.hot_water){
-                console.log("hot water hot!")
-                hot_water_relay.high()
-            }else{
-                hot_water_relay.low()
-            }
-            if(network_conditions.ev_charger){
-                ev_charger_relay.high()
-            }else{
-                ev_charger_relay.low()
-            }
+            set_net_relay_state(hot_water_relay,network_conditions.hot_water,last_hot_water_state)
+            set_net_relay_state(ev_charger_relay,network_conditions.ev_charger,last_ev_charger_state)
+            last_hot_water_state = network_conditions.hot_water
+            last_ev_charger_state = network_conditions.ev_charger
         }
     });
 });
+
+function set_net_relay_state(relay_gpio,state,last_state){
+    if(state != last_state){
+        if(state){
+            console.log('switched relay on')
+            relay_gpio.high()
+        }else{
+            console.log('switched relay off')
+            relay_gpio.low()
+        }
+    }
+}
 
 var strip_manager = new StripManager();
 
@@ -157,7 +175,7 @@ strip_manager.add_animated_section(m31_to_grid)
 //Main loop
 let network_conditions
 setInterval(() => {
-    network_conditions = determineNetworkConditions(inputs)
+    network_conditions = determineNetworkConditions(inputs,network_conditions)
     //strip_manager.loop(network_conditions)
 }, 5)
 
