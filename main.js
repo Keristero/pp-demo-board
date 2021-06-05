@@ -1,4 +1,4 @@
-const { Board, Sensor, Switch } = require("johnny-five");
+const { Board, Sensor, Switch, Pin } = require("johnny-five");
 const board = new Board();
 const {EnergyDirectionSection} = require('./EnergyDirectionSection')
 const {PixelIndicatorSection} = require('./PixelIndicatorSection')
@@ -48,7 +48,7 @@ function determineNetworkConditions({network_load_pot,day_night,hot_water,ev_cha
     return conditions
 }
 
-board.on("ready", () => {
+board.on("ready", function(){
     const potentiometer = new Sensor("A0");
     potentiometer.on("change", () => {
         inputs.network_load_pot = potentiometer.fscaleTo(0,1)
@@ -65,6 +65,24 @@ board.on("ready", () => {
     day_night_switch.on("open", () => {
         inputs.day_night = true
         console.log("open");
+    });
+
+    const hot_water_relay = new Pin(12);
+    const ev_charger_relay = new Pin(13);
+    this.loop(250, ()=>{
+        if(network_conditions){
+            if(network_conditions.hot_water){
+                console.log("hot water hot!")
+                hot_water_relay.high()
+            }else{
+                hot_water_relay.low()
+            }
+            if(network_conditions.ev_charger){
+                ev_charger_relay.high()
+            }else{
+                ev_charger_relay.low()
+            }
+        }
     });
 });
 
@@ -106,10 +124,10 @@ let pixel_ev_charger_section = new PixelIndicatorSection({led_index:45,
 strip_manager.add_animated_section(pixel_ev_charger_section)
 
 let house_to_m11 = new EnergyDirectionSection({
-    start_led: 46,
-    end_led: 61,
+    start_led: 250,
+    end_led: 299,
     direction_callback: ({solar_generation,hot_water,ev_charger}) => {
-        let direction = (solar_generation*SOLAR_PANEL_POWER)+(hot_water*HOT_WATER_POWER)+(ev_charger*CAR_CHARGER_POWER)
+        let direction = (solar_generation*SOLAR_PANEL_POWER)+(hot_water*HOT_WATER_POWER)+(ev_charger*CAR_CHARGER_POWER)+50
         return direction
     }
 })
@@ -145,7 +163,12 @@ setInterval(() => {
 
 clear_fake_data()
 
+//Fake data generation
 setInterval(() => {
-    network_conditions = determineNetworkConditions(inputs)
     generate_fake_data(network_conditions)
 }, 1000)
+
+//control S11 relays
+setInterval(() => {
+    generate_fake_data(network_conditions)
+}, 100)

@@ -19,12 +19,13 @@ function generate_m11_fake_data(simulation_conditions){
         current+=SOLAR_PANEL_POWER
     }
     let m11_data = {
-        timestamp:new Date(),
+        time:new Date(),
         phase:M11_phase,
         devicename:M11_name,
         ...voltage_pq,
         current:current
     }
+    //console.log(`adding fake m11 data`,m11_data)
     postgres_manager.Query('INSERT INTO public.fake_data VALUES(${this:csv})', m11_data);
 }
 
