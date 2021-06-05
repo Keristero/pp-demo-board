@@ -10,14 +10,9 @@ class PostgresManagerSingleton{
             database: config.TIMESCALE_MASTER_DATABASE,
             password: config.TIMESCALE_MASTER_PASSWORD,
             port: config.TIMESCALE_MASTER_PORT,
-            ssl: {
-                rejectUnauthorized: false,
-            },
+            ssl:false,
             schema: config.TIMESCALE_MASTER_SCHEMA,
             dialect: 'postgres',
-            dialectOptions: {
-                "ssl": {"require":true }
-            }
         })
     }
     /**

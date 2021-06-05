@@ -1,26 +1,57 @@
 const postgres_manager = require('./PostgresManager')
 const {RNG} = require('./helpers')
+const {SOLAR_PANEL_POWER,HOT_WATER_POWER,CAR_CHARGER_POWER} = require('./environment')
 
 const lastVoltageReading = 230
+const M11_name = "M11"
+const M11_phase = 0
+
+function generate_m11_fake_data(simulation_conditions){
+    let voltage_pq = generate_voltage_pq(simulation_conditions)
+    let current = 0
+    if(simulation_conditions.hot_water){
+        current+=HOT_WATER_POWER
+    }
+    if(simulation_conditions.ev_charger){
+        current+=CAR_CHARGER_POWER
+    }
+    if(simulation_conditions.solar_generation){
+        current+=SOLAR_PANEL_POWER
+    }
+    let m11_data = {
+        timestamp:new Date(),
+        phase:M11_phase,
+        devicename:M11_name,
+        ...voltage_pq,
+        current:current
+    }
+    postgres_manager.Query('INSERT INTO public.fake_data VALUES(${this:csv})', m11_data);
+}
 
 function generate_fake_data(simulation_conditions){
     console.log(simulation_conditions)
-    console.log(generate_phase_pq(simulation_conditions))
+    generate_m11_fake_data(simulation_conditions)
 }
 
-function generate_phase_pq(simulation_conditions){
+async function clear_fake_data(){
+    await postgres_manager.Query(`drop * from public.fake_alarms`)
+    await postgres_manager.Query(`drop * from public.fake_data`)
+}
+
+
+function generate_voltage_pq(simulation_conditions){
     let voltage_readings = []
     for(let i = 0; i < 5; i++){
         voltage_readings.push(get_voltage_reading(simulation_conditions))
     }
-    const sum = voltage_readings.reduce((a, b) => a + b, 0);
-    const average = (sum / voltage_readings.length) || 0;
-    let pq = {
-        MIN:Math.min(...voltage_readings),
-        MAX:Math.max(...voltage_readings),
-        SMA:average
+    let sum = voltage_readings.reduce((a, b) => a + b, 0);
+    let average = (sum / voltage_readings.length) || 0;
+    let voltages = {
+        voltagemin:Math.min(...voltage_readings),
+        voltagemax:Math.max(...voltage_readings),
+        voltagesma:average
     }
-    return pq
+    return voltages
 }
 
 
@@ -30,4 +61,4 @@ function get_voltage_reading({network_load_float}){
     return RNG(min_voltage,max_voltage)
 }
 
-module.exports = {generate_fake_data}
+module.exports = {generate_fake_data,clear_fake_data}

@@ -4,16 +4,13 @@ const {EnergyDirectionSection} = require('./EnergyDirectionSection')
 const {PixelIndicatorSection} = require('./PixelIndicatorSection')
 const {DayNightSection} = require('./DayNightSection')
 const StripManager = require('./StripManager')
-const {generate_fake_data} = require('./FakeDataGenerator')
+const {SOLAR_PANEL_POWER,HOT_WATER_POWER,CAR_CHARGER_POWER} = require('./environment')
+const {generate_fake_data,clear_fake_data} = require('./FakeDataGenerator')
 var pot_reading;
 var switch_state = false
 
 const MAX_POT_VALUE = 1023
 const MIN_POT_VALUE = 0
-
-const SOLAR_PANEL_POWER = 5 //5kw
-const HOT_WATER_POWER = -2.4 //5kw
-const CAR_CHARGER_POWER = -8 //5kw
 
 let inputs = {
     network_load_pot:0,
@@ -145,6 +142,8 @@ setInterval(() => {
     network_conditions = determineNetworkConditions(inputs)
     //strip_manager.loop(network_conditions)
 }, 5)
+
+clear_fake_data()
 
 setInterval(() => {
     network_conditions = determineNetworkConditions(inputs)
