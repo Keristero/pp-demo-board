@@ -1,16 +1,73 @@
-const { Board, Sensor, Switch, Pin } = require("johnny-five");
-const board = new Board();
+
 const {EnergyDirectionSection} = require('./EnergyDirectionSection')
 const {PixelIndicatorSection} = require('./PixelIndicatorSection')
-const {DayNightSection} = require('./DayNightSection')
 const StripManager = require('./StripManager')
+const {Sleep} = require('./helpers')
 const {SOLAR_PANEL_POWER,HOT_WATER_POWER,CAR_CHARGER_POWER} = require('./environment')
 const {generate_fake_data,clear_fake_data} = require('./FakeDataGenerator')
 var pot_reading;
 var switch_state = false
 
-const MAX_POT_VALUE = 1023
-const MIN_POT_VALUE = 0
+const Firmata = require("firmata");
+const board = new Firmata('/dev/ttyUSB1');
+
+const analog_pins = {0:"network_load_pot"}
+const digital_pins = {19:"day_night",18:"conductor_down",17:"hot_water",16:"ev_charger"}
+
+const analog_wait_time = 100
+
+function ReadPinAsync(board,pin_id,is_analog=false){
+    return new Promise((resolve)=>{
+        if(is_analog){
+            board.analogRead(pin_id,(pin_value)=>{
+                resolve(pin_value)
+            })
+        }else{
+            board.digitalRead(pin_id,(pin_value)=>{
+                resolve(pin_value)
+            })
+        }
+    })
+}
+
+function OnAnalogValue(pin_id,value){
+    if(analog_pins[pin_id]){
+        inputs[analog_pins[pin_id]] = value
+    }
+}
+
+function OnDigitalValue(pin_id,value){
+    if(digital_pins[pin_id]){
+        inputs[digital_pins[pin_id]] = value
+    }
+}
+
+board.on("ready", async() => {
+    console.log('board ready')
+    console.log(board.pins)
+
+    for(let pin_id in digital_pins){
+        board.pinMode(pin_id,board.MODES.INPUT)
+    }
+
+    console.log('last analog index',board.pins.length-1)
+    
+    while(true){
+        for(let pin_id in analog_pins){
+            let pin_value = await ReadPinAsync(board,pin_id,true)
+            board.reportAnalogPin(pin_id, 0)
+            OnAnalogValue(pin_id,pin_value)
+            //console.log(pin_id,pin_value)
+            await Sleep(analog_wait_time)
+        }
+        for(let pin_id in digital_pins){
+            let pin_value = await ReadPinAsync(board,pin_id,false)
+            OnDigitalValue(pin_id,pin_value)
+            //console.log(pin_id,pin_value)
+            await Sleep(analog_wait_time)
+        }
+    }
+});
 
 let inputs = {
     network_load_pot:0,
@@ -59,25 +116,17 @@ function determineNetworkConditions({network_load_pot,day_night,hot_water,ev_cha
     return conditions
 }
 
+/* johnny five
 board.on("ready", function(){
-    const potentiometer = new Sensor("A0");
-    potentiometer.on("change", () => {
-        inputs.network_load_pot = potentiometer.fscaleTo(0,1)
-    });
 
-    const day_night_switch = new Switch({
-        pin: 4,
-        type: "NC"
-    });
-    day_night_switch.on("close", () => {
-        inputs.day_night = false
-        console.log("closed");
-    });
-    day_night_switch.on("open", () => {
-        inputs.day_night = true
-        console.log("open");
-    });
+    let frequency = 1000
+    const sensors = new Sensors([ { pin: "A0",freq:300},  { pin: "A1",freq:700}, { pin: "A2",freq:frequency}, { pin: "A3",freq:frequency}, { pin: "A4",freq:frequency} ]);
+    sensors.on('change',(sensor)=>{
+        console.log(sensor.pin,sensor.value)
+    })
 
+
+    //old s11 relay control
     const hot_water_relay = new Pin(12);
     const ev_charger_relay = new Pin(13);
     let last_hot_water_state = false
@@ -91,6 +140,7 @@ board.on("ready", function(){
         }
     });
 });
+*/
 
 function set_net_relay_state(relay_gpio,state,last_state){
     if(state != last_state){
@@ -105,45 +155,38 @@ function set_net_relay_state(relay_gpio,state,last_state){
 }
 
 var strip_manager = new StripManager();
-
-//Led strip sections
-let day_night_section = new DayNightSection({start_led: 0,end_led: 30,
-    is_day_callback: ({solar_generation}) => {return solar_generation}
-})
-strip_manager.add_animated_section(day_night_section)
-
-let pixel_high_network_load_section = new PixelIndicatorSection({led_index:31,
-    lit_callback:({high_network_load})=>{return high_network_load},
-    on_rgb_color:{r:255,g:0,b:0}
-})
-strip_manager.add_animated_section(pixel_high_network_load_section)
-
-let pixel_conductor_down_section = new PixelIndicatorSection({led_index:32,
+//
+//Pixel Indicators
+//
+let indicator_conductor_down = new PixelIndicatorSection({led_index:0,
     lit_callback:({conductor_down})=>{return conductor_down},
-    on_rgb_color:{r:255,g:0,b:0}
+    on_rgb_color:{r:255,g:100,b:100}
 })
-strip_manager.add_animated_section(pixel_conductor_down_section)
+strip_manager.add_animated_section(indicator_conductor_down)
 
-let solar_to_house = new EnergyDirectionSection({start_led: 33,end_led: 43,
-    direction_callback: ({solar_generation}) => {return (solar_generation*SOLAR_PANEL_POWER)}
-})
-strip_manager.add_animated_section(solar_to_house)
-
-let pixel_hot_water_section = new PixelIndicatorSection({led_index:44,
-    lit_callback:({hot_water})=>{return hot_water},
-    on_rgb_color:{r:255,g:128,b:0}
-})
-strip_manager.add_animated_section(pixel_hot_water_section)
-
-let pixel_ev_charger_section = new PixelIndicatorSection({led_index:45,
+let indicator_ev_charging = new PixelIndicatorSection({led_index:1,
     lit_callback:({ev_charger})=>{return ev_charger},
     on_rgb_color:{r:255,g:128,b:0}
 })
-strip_manager.add_animated_section(pixel_ev_charger_section)
+strip_manager.add_animated_section(indicator_ev_charging)
 
+let indicator_day = new PixelIndicatorSection({led_index:2,
+    lit_callback:({solar_generation})=>{return solar_generation},
+    on_rgb_color:{r:255,g:225,b:100}
+})
+strip_manager.add_animated_section(indicator_day)
+
+let indicator_hot_water = new PixelIndicatorSection({led_index:3,
+    lit_callback:({hot_water})=>{return hot_water},
+    on_rgb_color:{r:255,g:128,b:0}
+})
+strip_manager.add_animated_section(indicator_hot_water)
+//
+//Energy direction sections
+//
 let house_to_m11 = new EnergyDirectionSection({
-    start_led: 250,
-    end_led: 299,
+    start_led: 4,
+    end_led: 13,
     direction_callback: ({solar_generation,hot_water,ev_charger}) => {
         let direction = (solar_generation*SOLAR_PANEL_POWER)+(hot_water*HOT_WATER_POWER)+(ev_charger*CAR_CHARGER_POWER)+50
         return direction
@@ -152,8 +195,8 @@ let house_to_m11 = new EnergyDirectionSection({
 strip_manager.add_animated_section(house_to_m11)
 
 let m11_to_m31 = new EnergyDirectionSection({
-    start_led: 62,
-    end_led: 77,
+    start_led: 14,
+    end_led: 38,
     direction_callback: ({solar_generation,hot_water,ev_charger}) => {
         let direction = (-10)+(solar_generation*SOLAR_PANEL_POWER)+(hot_water*HOT_WATER_POWER)+(ev_charger*CAR_CHARGER_POWER)
         return direction
@@ -162,8 +205,8 @@ let m11_to_m31 = new EnergyDirectionSection({
 strip_manager.add_animated_section(m11_to_m31)
 
 let m31_to_grid = new EnergyDirectionSection({
-    start_led: 78,
-    end_led: 98,
+    start_led: 39,
+    end_led: 60,
     direction_callback: ({solar_generation,hot_water,ev_charger,network_load_float}) => {
         let direction = (-50*network_load_float)+(-10)+(solar_generation*SOLAR_PANEL_POWER)+(hot_water*HOT_WATER_POWER)+(ev_charger*CAR_CHARGER_POWER)
         return direction
@@ -171,12 +214,22 @@ let m31_to_grid = new EnergyDirectionSection({
 })
 strip_manager.add_animated_section(m31_to_grid)
 
+let conductor_down_1 = new EnergyDirectionSection({
+    start_led: 39,
+    end_led: 60,
+    direction_callback: ({solar_generation,hot_water,ev_charger,network_load_float}) => {
+        let direction = (-50*network_load_float)+(-10)+(solar_generation*SOLAR_PANEL_POWER)+(hot_water*HOT_WATER_POWER)+(ev_charger*CAR_CHARGER_POWER)
+        return direction
+    }
+})
+strip_manager.add_animated_section(conductor_down_1)
+
 
 //Main loop
 let network_conditions
 setInterval(() => {
     network_conditions = determineNetworkConditions(inputs,network_conditions)
-    //strip_manager.loop(network_conditions)
+    strip_manager.loop(network_conditions)
 }, 5)
 
 clear_fake_data()
@@ -184,6 +237,10 @@ clear_fake_data()
 //Fake data generation
 setInterval(() => {
     generate_fake_data(network_conditions)
+}, 5000)
+
+setInterval(() => {
+    console.log(inputs)
 }, 1000)
 
 //control S11 relays

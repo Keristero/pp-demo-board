@@ -6,6 +6,8 @@ const lastVoltageReading = 230
 const M11_name = "M11"
 const M11_phase = 0
 
+postgres_manager.Query('DELETE from fake_data');
+
 function generate_m11_fake_data(simulation_conditions){
     let voltage_pq = generate_voltage_pq(simulation_conditions)
     let current = 0

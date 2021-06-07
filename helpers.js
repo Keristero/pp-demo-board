@@ -16,4 +16,10 @@ function RNG(min,max){
     return (Math.random()*(max-min+1)+min);
 }
 
-module.exports = {rgb_to_decimal,decimal_to_rgb,RNG}
+async function Sleep(time_ms){
+    return new Promise((resolve)=>{
+        setTimeout(resolve,time_ms)
+    })
+}
+
+module.exports = {rgb_to_decimal,decimal_to_rgb,RNG,Sleep}

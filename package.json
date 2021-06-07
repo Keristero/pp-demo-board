@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "firmata": "^2.3.0",
     "johnny-five": "^2.0.0",
     "pg": "^8.6.0",
     "pg-promise": "^10.10.2",
