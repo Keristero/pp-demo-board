@@ -4,17 +4,19 @@ const {PixelIndicatorSection} = require('./PixelIndicatorSection')
 const StripManager = require('./StripManager')
 const {Sleep} = require('./helpers')
 const {SOLAR_PANEL_POWER,HOT_WATER_POWER,CAR_CHARGER_POWER} = require('./environment')
-const {generate_fake_data,clear_fake_data} = require('./FakeDataGenerator')
+const {generate_fake_data,clear_fake_data,generate_fake_readings} = require('./FakeDataGenerator')
 var pot_reading;
 var switch_state = false
 
 const Firmata = require("firmata");
 const board = new Firmata('/dev/ttyUSB1');
 
+//input pin to data name mapping
 const analog_pins = {0:"network_load_pot"}
 const digital_pins = {19:"day_night",18:"conductor_down",17:"hot_water",16:"ev_charger"}
 
-const analog_wait_time = 100
+//Wait time between reading arduino inputs
+const read_wait_time = 100
 
 function ReadPinAsync(board,pin_id,is_analog=false){
     return new Promise((resolve)=>{
@@ -32,13 +34,13 @@ function ReadPinAsync(board,pin_id,is_analog=false){
 
 function OnAnalogValue(pin_id,value){
     if(analog_pins[pin_id]){
-        inputs[analog_pins[pin_id]] = value
+        input_values[analog_pins[pin_id]] = value
     }
 }
 
 function OnDigitalValue(pin_id,value){
     if(digital_pins[pin_id]){
-        inputs[digital_pins[pin_id]] = value
+        input_values[digital_pins[pin_id]] = value
     }
 }
 
@@ -55,21 +57,21 @@ board.on("ready", async() => {
     while(true){
         for(let pin_id in analog_pins){
             let pin_value = await ReadPinAsync(board,pin_id,true)
-            board.reportAnalogPin(pin_id, 0)
-            OnAnalogValue(pin_id,pin_value)
+            board.reportAnalogPin(pin_id, 0) //stop checking this analog pin until our next reading
+            OnAnalogValue(pin_id,pin_value) //record latest reading
             //console.log(pin_id,pin_value)
-            await Sleep(analog_wait_time)
+            await Sleep(read_wait_time)
         }
         for(let pin_id in digital_pins){
             let pin_value = await ReadPinAsync(board,pin_id,false)
-            OnDigitalValue(pin_id,pin_value)
+            OnDigitalValue(pin_id,pin_value) //record latest reading
             //console.log(pin_id,pin_value)
-            await Sleep(analog_wait_time)
+            await Sleep(read_wait_time)
         }
     }
 });
 
-let inputs = {
+let input_values = {
     network_load_pot:0,
     day_night:true,
     hot_water:true,
@@ -99,7 +101,7 @@ function determineNetworkConditions({network_load_pot,day_night,hot_water,ev_cha
         if(network_load_pot > debounce_pot_threshhold(0.6,!last_coditions.hot_water,0.05)){
             conditions.high_network_load = true
             conditions.hot_water = false
-            if(inputs.network_load_pot > debounce_pot_threshhold(0.8,!last_coditions.ev_charger,0.05)){
+            if(input_values.network_load_pot > debounce_pot_threshhold(0.8,!last_coditions.ev_charger,0.05)){
                 conditions.ev_charger = false
             }
         }
@@ -188,7 +190,7 @@ let house_to_m11 = new EnergyDirectionSection({
     start_led: 4,
     end_led: 13,
     direction_callback: ({solar_generation,hot_water,ev_charger}) => {
-        let direction = (solar_generation*SOLAR_PANEL_POWER)+(hot_water*HOT_WATER_POWER)+(ev_charger*CAR_CHARGER_POWER)+50
+        let direction = (solar_generation*SOLAR_PANEL_POWER)+(hot_water*HOT_WATER_POWER)+(ev_charger*CAR_CHARGER_POWER)
         return direction
     }
 })
@@ -198,7 +200,7 @@ let m11_to_m31 = new EnergyDirectionSection({
     start_led: 14,
     end_led: 38,
     direction_callback: ({solar_generation,hot_water,ev_charger}) => {
-        let direction = (-10)+(solar_generation*SOLAR_PANEL_POWER)+(hot_water*HOT_WATER_POWER)+(ev_charger*CAR_CHARGER_POWER)
+        let direction = (-20)+(solar_generation*SOLAR_PANEL_POWER)+(hot_water*HOT_WATER_POWER)+(ev_charger*CAR_CHARGER_POWER)
         return direction
     }
 })
@@ -228,7 +230,7 @@ strip_manager.add_animated_section(conductor_down_1)
 //Main loop
 let network_conditions
 setInterval(() => {
-    network_conditions = determineNetworkConditions(inputs,network_conditions)
+    network_conditions = determineNetworkConditions(input_values,network_conditions)
     strip_manager.loop(network_conditions)
 }, 5)
 
@@ -240,7 +242,8 @@ setInterval(() => {
 }, 5000)
 
 setInterval(() => {
-    console.log(inputs)
+    generate_fake_readings(network_conditions)
+    console.log(input_values)
 }, 1000)
 
 //control S11 relays
