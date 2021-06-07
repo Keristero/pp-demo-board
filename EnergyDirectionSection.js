@@ -33,10 +33,10 @@ class EnergyDirectionSection extends AnimatedSection{
             if(direction > 0){
                 //Move led index in direction, and use color based on direction
                 this.local_led_index++
-                rgb.g = Math.max(100,Math.min(255,100+(Math.abs(direction)*5)))
+                rgb.g = 255
             }else{
                 this.local_led_index--
-                rgb.r = Math.max(100,Math.min(255,100+(Math.abs(direction)*5)))
+                rgb.r = 255
             }
             if(this.local_led_index >= this.length){
                 this.local_led_index = this.local_led_index-this.length
