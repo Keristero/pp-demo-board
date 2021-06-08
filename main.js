@@ -5,71 +5,13 @@ const StripManager = require('./StripManager')
 const {Sleep} = require('./helpers')
 const {SOLAR_PANEL_POWER,HOT_WATER_POWER,CAR_CHARGER_POWER} = require('./environment')
 const {generate_fake_data,clear_fake_data,generate_fake_readings} = require('./FakeDataGenerator')
+const five = require("johnny-five");
 var pot_reading;
 var switch_state = false
 
-const Firmata = require("firmata");
-const board = new Firmata('/dev/ttyUSB1');
-
 //input pin to data name mapping
-const analog_pins = {0:"network_load_pot"}
-const digital_pins = {19:"day_night",18:"conductor_down",17:"hot_water",16:"ev_charger"}
-
-//Wait time between reading arduino inputs
-const read_wait_time = 100
-
-function ReadPinAsync(board,pin_id,is_analog=false){
-    return new Promise((resolve)=>{
-        if(is_analog){
-            board.analogRead(pin_id,(pin_value)=>{
-                resolve(pin_value)
-            })
-        }else{
-            board.digitalRead(pin_id,(pin_value)=>{
-                resolve(pin_value)
-            })
-        }
-    })
-}
-
-function OnAnalogValue(pin_id,value){
-    if(analog_pins[pin_id]){
-        input_values[analog_pins[pin_id]] = value
-    }
-}
-
-function OnDigitalValue(pin_id,value){
-    if(digital_pins[pin_id]){
-        input_values[digital_pins[pin_id]] = value
-    }
-}
-
-board.on("ready", async() => {
-    console.log('board ready')
-    console.log(board.pins)
-
-    for(let pin_id in digital_pins){
-        board.pinMode(pin_id,board.MODES.INPUT)
-    }
-
-    console.log('last analog index',board.pins.length-1)
-    
-    while(true){
-        for(let pin_id in analog_pins){
-            let pin_value = await ReadPinAsync(board,pin_id,true)
-            board.reportAnalogPin(pin_id, 0) //stop checking this analog pin until our next reading
-            OnAnalogValue(pin_id,pin_value) //record latest reading
-            //console.log(pin_id,pin_value)
-            await Sleep(read_wait_time)
-        }
-        for(let pin_id in digital_pins){
-            let pin_value = await ReadPinAsync(board,pin_id,false)
-            OnDigitalValue(pin_id,pin_value) //record latest reading
-            //console.log(pin_id,pin_value)
-            await Sleep(read_wait_time)
-        }
-    }
-});
+const analog_pins = {"A0":"network_load_pot"}
+const bool_pins = {"A1":"day_night","A2":"conductor_down","A3":"hot_water","A4":"ev_charger"}
 
 let input_values = {
     network_load_pot:0,
@@ -78,6 +20,45 @@ let input_values = {
     ev_charger:true,
     conductor_down:false
 }
+let network_conditions
+
+const board = new five.Board();
+board.on("ready",()=>{
+    const hot_water_relay = new five.Pin(12);
+    const ev_charger_relay = new five.Pin(13);
+    let last_hot_water_state = false
+    let last_ev_charger_state = false
+    setInterval(()=>{
+        if(network_conditions){
+            set_net_relay_state(hot_water_relay,network_conditions.hot_water,last_hot_water_state)
+            set_net_relay_state(ev_charger_relay,network_conditions.ev_charger,last_ev_charger_state)
+            last_hot_water_state = network_conditions.hot_water
+            last_ev_charger_state = network_conditions.ev_charger
+        }
+    },250);
+
+    //Read switch inputs
+    for(let pin_id in bool_pins){
+        let name = bool_pins[pin_id]
+        let pin = new five.Pin({pin:pin_id,type:"analog",mode:0});
+        pin.read((err,value)=>{
+            if(value > 1000){
+                input_values[name] = true
+            }else{
+                input_values[name] = false
+            }
+        })
+    }
+
+    //Read potentiometer input
+    for(let pin_id in analog_pins){
+        let name = analog_pins[pin_id]
+        let sensor = new five.Sensor({pin:pin_id});
+        sensor.on('change',(err,value)=>{
+            input_values[name] = sensor.fscaleTo(0,1)
+        })
+    }
+});
 
 function debounce_pot_threshhold(threshhold,was_over_threshold,debounce_amount){
     if(!was_over_threshold){
@@ -117,32 +98,6 @@ function determineNetworkConditions({network_load_pot,day_night,hot_water,ev_cha
     }
     return conditions
 }
-
-/* johnny five
-board.on("ready", function(){
-
-    let frequency = 1000
-    const sensors = new Sensors([ { pin: "A0",freq:300},  { pin: "A1",freq:700}, { pin: "A2",freq:frequency}, { pin: "A3",freq:frequency}, { pin: "A4",freq:frequency} ]);
-    sensors.on('change',(sensor)=>{
-        console.log(sensor.pin,sensor.value)
-    })
-
-
-    //old s11 relay control
-    const hot_water_relay = new Pin(12);
-    const ev_charger_relay = new Pin(13);
-    let last_hot_water_state = false
-    let last_ev_charger_state = false
-    this.loop(250, ()=>{
-        if(network_conditions){
-            set_net_relay_state(hot_water_relay,network_conditions.hot_water,last_hot_water_state)
-            set_net_relay_state(ev_charger_relay,network_conditions.ev_charger,last_ev_charger_state)
-            last_hot_water_state = network_conditions.hot_water
-            last_ev_charger_state = network_conditions.ev_charger
-        }
-    });
-});
-*/
 
 function set_net_relay_state(relay_gpio,state,last_state){
     if(state != last_state){
@@ -226,9 +181,7 @@ let conductor_down_1 = new EnergyDirectionSection({
 })
 strip_manager.add_animated_section(conductor_down_1)
 
-
 //Main loop
-let network_conditions
 setInterval(() => {
     network_conditions = determineNetworkConditions(input_values,network_conditions)
     strip_manager.loop(network_conditions)
@@ -245,8 +198,3 @@ setInterval(() => {
     generate_fake_readings(network_conditions)
     console.log(input_values)
 }, 1000)
-
-//control S11 relays
-setInterval(() => {
-    generate_fake_data(network_conditions)
-}, 100)
