@@ -1,0 +1,12 @@
+version: '2'
+
+services:
+  demo-board:
+    build: .
+    image: demo-board
+    restart: unless-stopped
+    privileged: true
+    devices:
+        - /dev/mem:/dev/mem
+    environment:
+     -  TIMESCALE_MASTER_ADDRESS=postgres

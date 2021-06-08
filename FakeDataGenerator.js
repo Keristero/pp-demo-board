@@ -57,7 +57,7 @@ function generate_m31_fake_data(simulation_conditions){
 }
 
 function generate_conductor_down_alarm(conductor_is_down){
-    let alarm_type = conductor_is_down ? "Grounded Conductor" : "Balanced"
+    let alarm_type = conductor_is_down ? "Grounded Conductor" : "👍"
     let alarm = {
         time:new Date(),
         type:alarm_type,
