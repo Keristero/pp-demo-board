@@ -11,7 +11,7 @@ const environment = {
     LEDS_DMA:10,
     SOLAR_PANEL_POWER:5,
     HOT_WATER_POWER:-2.4,
-    CAR_CHARGER_POWER:7.2
+    CAR_CHARGER_POWER:-7.2
 }
 
 console.log("Loaded environment variables",environment)
