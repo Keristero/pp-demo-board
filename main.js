@@ -22,7 +22,7 @@ let input_values = {
 }
 let network_conditions
 
-const board = new five.Board();
+const board = new five.Board({repl:false});
 board.on("ready",()=>{
     const hot_water_relay = new five.Pin(12);
     const ev_charger_relay = new five.Pin(13);
@@ -129,7 +129,20 @@ strip_manager.add_animated_section(indicator_ev_charging)
 
 let indicator_day = new PixelIndicatorSection({led_index:2,
     lit_callback:({solar_generation})=>{return solar_generation},
-    on_rgb_color:{r:255,g:200,b:100}
+    color_callback:()=>{
+        if(!this.sun_pulse){
+            this.sun_pulse = 128
+            this.sun_pulse_direction = 0.5
+        }
+        if(this.sun_pulse >= 255){
+            this.sun_pulse_direction *= -1
+        }
+        if(this.sun_pulse <= 200){
+            this.sun_pulse_direction *= -1
+        }
+        this.sun_pulse = Math.max(200,Math.min(255,this.sun_pulse+this.sun_pulse_direction))
+        return {r:this.sun_pulse,g:this.sun_pulse*0.5,b:0}
+    }
 })
 strip_manager.add_animated_section(indicator_day)
 
