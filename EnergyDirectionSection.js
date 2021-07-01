@@ -7,7 +7,7 @@ class EnergyDirectionSection extends AnimatedSection{
         this.reverse_direction = reverse_direction
         this.pulse_for_conductor_down = pulse_for_conductor_down
 
-        this.fade_speed = 6
+        this.fade_speed = 2
         this.local_led_index = 0
         this.tics_till_next_position = 0
 
@@ -47,7 +47,7 @@ class EnergyDirectionSection extends AnimatedSection{
             this.tics_till_next_position--
             if(this.tics_till_next_position <= 0){
                 //If it is time to move onto next pixel
-                if(flow > 0){
+                if(flow < 0){
                     //Move led index in direction, and use color based on direction
                     if(!this.reverse_direction){
                         this.local_led_index++
@@ -72,7 +72,7 @@ class EnergyDirectionSection extends AnimatedSection{
                     this.local_led_index = this.local_led_index+this.length
                 }
                 //Wait x number of tics till next movement
-                this.tics_till_next_position = 25/Math.abs(flow)+1
+                this.tics_till_next_position = 100/Math.abs(flow)+1
                 //Set pixel color
                 this.SetRelativePixelColor(strip_array,this.local_led_index,rgb)
             }
