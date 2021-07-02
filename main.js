@@ -132,7 +132,7 @@ let indicator_day = new PixelIndicatorSection({led_index:2,
     color_callback:()=>{
         if(!this.sun_pulse){
             this.sun_pulse = 128
-            this.sun_pulse_direction = 0.5
+            this.sun_pulse_direction = 0.2
         }
         if(this.sun_pulse >= 255){
             this.sun_pulse_direction *= -1
@@ -141,7 +141,7 @@ let indicator_day = new PixelIndicatorSection({led_index:2,
             this.sun_pulse_direction *= -1
         }
         this.sun_pulse = Math.max(200,Math.min(255,this.sun_pulse+this.sun_pulse_direction))
-        return {r:this.sun_pulse,g:this.sun_pulse*0.5,b:0}
+        return {r:this.sun_pulse,g:this.sun_pulse*0.7,b:this.sun_pulse*0.2}
     }
 })
 strip_manager.add_animated_section(indicator_day)
@@ -174,16 +174,16 @@ let m11_to_m31 = new EnergyDirectionSection({
 })
 strip_manager.add_animated_section(m11_to_m31)
 
-let m31_to_grid_part_1 = new EnergyDirectionSection({
-    start_led: 39,
-    end_led: 48,
+let m31_to_grid_conductor_down = new EnergyDirectionSection({
+    start_led: 49,
+    end_led: 60,
     flow_callback: ({solar_generation,hot_water,ev_charger,network_load_float}) => {
-        let direction = 0
+        let direction = null
         return direction
     },
     pulse_for_conductor_down:true
 })
-strip_manager.add_animated_section(m31_to_grid_part_1)
+strip_manager.add_animated_section(m31_to_grid_conductor_down)
 let m31_to_grid_normal = new EnergyDirectionSection({
     start_led: 39,
     end_led: 60,
@@ -200,29 +200,14 @@ strip_manager.add_animated_section(m31_to_grid_normal)
 let conductor_down_strip = new EnergyDirectionSection({
     start_led: 61,
     end_led: 71,
-    flow_callback: ({solar_generation,hot_water,ev_charger,network_load_float,conductor_down}) => {
+    flow_callback: () => {
         let direction = 0
-        if(conductor_down){
-            direction = (50*network_load_float)+10+(solar_generation*SOLAR_PANEL_POWER)+(hot_water*HOT_WATER_POWER)+(ev_charger*CAR_CHARGER_POWER)
-        }
         return direction
     },
     reverse_direction:true,
     pulse_for_conductor_down:true
 })
 strip_manager.add_animated_section(conductor_down_strip)
-
-/*
-let conductor_down_1 = new EnergyDirectionSection({
-    start_led: 61,
-    end_led: 67,
-    flow_callback: ({solar_generation,hot_water,ev_charger,network_load_float}) => {
-        let direction = (-50*network_load_float)+(-10)+(solar_generation*SOLAR_PANEL_POWER)+(hot_water*HOT_WATER_POWER)+(ev_charger*CAR_CHARGER_POWER)
-        return direction
-    }
-})
-strip_manager.add_animated_section(conductor_down_1)
-*/
 
 //Main loop
 setInterval(() => {

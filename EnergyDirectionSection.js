@@ -20,7 +20,6 @@ class EnergyDirectionSection extends AnimatedSection{
      * @param {Object} demo_conditions 
      */
     UpdateStrip(strip_array,demo_conditions){
-        this.FadeStrip(strip_array,this.fade_speed)
 
         let rgb = {r:0,g:0,b:0}
 
@@ -33,15 +32,21 @@ class EnergyDirectionSection extends AnimatedSection{
                 this.pulse_direction *= -1
             }
             rgb.r = Math.max(0,Math.min(this.pulse_brightness,255))
+            rgb.g = Math.max(0,Math.min(this.pulse_brightness*0.5,255))
             for(let i = 0; i < this.length; i++){
                 this.SetRelativePixelColor(strip_array,i,rgb)
             }
         }else{
             let flow = this.flow_callback(demo_conditions)
             if(flow === 0){
-                //If there is no movement of energy, return early
+                this.FadeStrip(strip_array,this.fade_speed)
+                //If there is no movement of energy, fade and return early
+                return
+            }else if(flow == null){
+                //if flow is null, dont even fade, just return early
                 return
             }
+            this.FadeStrip(strip_array,this.fade_speed)
     
             //Reduce
             this.tics_till_next_position--
