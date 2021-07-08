@@ -3,11 +3,19 @@ const {EnergyDirectionSection} = require('./EnergyDirectionSection')
 const {PixelIndicatorSection} = require('./PixelIndicatorSection')
 const StripManager = require('./StripManager')
 const {Sleep} = require('./helpers')
-const {SOLAR_PANEL_POWER,HOT_WATER_POWER,CAR_CHARGER_POWER} = require('./environment')
+const {SOLAR_PANEL_POWER,HOT_WATER_POWER,CAR_CHARGER_POWER,CONDUCTOR_DOWN_ENERGY_MULTIPLIER} = require('./environment')
 const {generate_fake_data,clear_fake_data,generate_fake_readings} = require('./FakeDataGenerator')
 const five = require("johnny-five");
 var pot_reading;
 var switch_state = false
+
+//100 to 250
+//235 loaded at transformer
+//240 normally at transformer
+//225 loaded at house
+//235 low network load at house
+
+
 
 //input pin to data name mapping
 const analog_pins = {"A0":"network_load_pot"}
@@ -82,7 +90,7 @@ function determineNetworkConditions({network_load_pot,day_night,hot_water,ev_cha
         if(network_load_pot > debounce_pot_threshhold(0.6,!last_coditions.hot_water,0.05)){
             conditions.high_network_load = true
             conditions.hot_water = false
-            if(input_values.network_load_pot > debounce_pot_threshhold(0.8,!last_coditions.ev_charger,0.05)){
+            if(input_values.network_load_pot > debounce_pot_threshhold(0.9,!last_coditions.ev_charger,0.05)){
                 conditions.ev_charger = false
             }
         }
@@ -123,7 +131,20 @@ strip_manager.add_animated_section(indicator_conductor_down)
 
 let indicator_ev_charging = new PixelIndicatorSection({led_index:1,
     lit_callback:({ev_charger})=>{return ev_charger},
-    on_rgb_color:{r:0,g:255,b:0}
+    color_callback:()=>{
+        if(!this.sun_pulse){
+            this.sun_pulse = 200
+            this.sun_pulse_direction = 0.2
+        }
+        if(this.sun_pulse >= 255){
+            this.sun_pulse_direction *= -1
+        }
+        if(this.sun_pulse <= 128){
+            this.sun_pulse_direction *= -1
+        }
+        this.sun_pulse = Math.max(200,Math.min(255,this.sun_pulse+this.sun_pulse_direction))
+        return {r:this.sun_pulse,g:this.sun_pulse,b:this.sun_pulse}
+    }
 })
 strip_manager.add_animated_section(indicator_ev_charging)
 
@@ -157,27 +178,37 @@ strip_manager.add_animated_section(indicator_hot_water)
 let house_to_m11 = new EnergyDirectionSection({
     start_led: 4,
     end_led: 13,
-    flow_callback: ({solar_generation,hot_water,ev_charger}) => {
-        let direction = (solar_generation*SOLAR_PANEL_POWER)+(hot_water*HOT_WATER_POWER)+(ev_charger*CAR_CHARGER_POWER)
+    flow_callback: ({solar_generation,hot_water,ev_charger,conductor_down}) => {
+        let consumption_multiplier = CONDUCTOR_DOWN_ENERGY_MULTIPLIER
+        if(!conductor_down){
+            consumption_multiplier = 1
+        }
+        let direction = (!conductor_down*solar_generation*SOLAR_PANEL_POWER)+(((hot_water*HOT_WATER_POWER)+(ev_charger*CAR_CHARGER_POWER))*consumption_multiplier)
         return direction
     },
 })
 strip_manager.add_animated_section(house_to_m11)
 
+let m11_to_m31_flow_callback = function({solar_generation,hot_water,ev_charger,network_load_float,conductor_down}){
+    let consumption_multiplier = CONDUCTOR_DOWN_ENERGY_MULTIPLIER
+    if(!conductor_down){
+        consumption_multiplier = 1
+    }
+    let direction = (!conductor_down*solar_generation*SOLAR_PANEL_POWER)+(((50*network_load_float)+15+(hot_water*HOT_WATER_POWER)+(ev_charger*CAR_CHARGER_POWER))*consumption_multiplier)
+    return direction
+}
+
 let m11_to_m31 = new EnergyDirectionSection({
     start_led: 14,
     end_led: 38,
-    flow_callback: ({solar_generation,hot_water,ev_charger,network_load_float}) => {
-        let direction = (20*network_load_float)+15+(solar_generation*SOLAR_PANEL_POWER)+(hot_water*HOT_WATER_POWER)+(ev_charger*CAR_CHARGER_POWER)
-        return direction
-    },
+    flow_callback: m11_to_m31_flow_callback
 })
 strip_manager.add_animated_section(m11_to_m31)
 
 let m31_to_grid_conductor_down = new EnergyDirectionSection({
-    start_led: 49,
-    end_led: 60,
-    flow_callback: ({solar_generation,hot_water,ev_charger,network_load_float}) => {
+    start_led: 39,
+    end_led: 48,
+    flow_callback: () => {
         let direction = null
         return direction
     },
@@ -190,7 +221,7 @@ let m31_to_grid_normal = new EnergyDirectionSection({
     flow_callback: ({solar_generation,hot_water,ev_charger,network_load_float,conductor_down}) => {
         let direction = 0
         if(!conductor_down){
-            direction = (50*network_load_float)+15+(solar_generation*SOLAR_PANEL_POWER)+(hot_water*HOT_WATER_POWER)+(ev_charger*CAR_CHARGER_POWER)
+            direction = (solar_generation*SOLAR_PANEL_POWER)+(50*network_load_float)+15+(hot_water*HOT_WATER_POWER)+(ev_charger*CAR_CHARGER_POWER)
         }
         return direction
     },
@@ -226,3 +257,5 @@ setInterval(() => {
     generate_fake_readings(network_conditions)
     console.log(input_values)
 }, 1000)
+
+module.exports = {m11_to_m31_flow_callback}
