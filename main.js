@@ -169,7 +169,20 @@ strip_manager.add_animated_section(indicator_day)
 
 let indicator_hot_water = new PixelIndicatorSection({led_index:3,
     lit_callback:({hot_water})=>{return hot_water},
-    on_rgb_color:{r:255,g:0,b:0}
+    color_callback:()=>{
+        if(!this.sun_pulse){
+            this.sun_pulse = 128
+            this.sun_pulse_direction = 0.2
+        }
+        if(this.sun_pulse >= 255){
+            this.sun_pulse_direction *= -1
+        }
+        if(this.sun_pulse <= 200){
+            this.sun_pulse_direction *= -1
+        }
+        this.sun_pulse = Math.max(200,Math.min(255,this.sun_pulse+this.sun_pulse_direction))
+        return {r:this.sun_pulse,g:0,b:0}
+    }
 })
 strip_manager.add_animated_section(indicator_hot_water)
 //

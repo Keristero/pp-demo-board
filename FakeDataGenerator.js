@@ -43,6 +43,7 @@ function generate_m11_fake_data(simulation_conditions) {
     let m11_power_flow = m11_flow_callback(simulation_conditions)
     let voltage_pq_red = generate_pq_readings("voltage", fake_readings["M11"].voltage[M11_phase])
     let current_pq_red = generate_pq_readings("current", fake_readings["M11"].current[M11_phase])
+    let power_pq_red = generate_pq_readings("power", fake_readings["M11"].power[M11_phase])
 
     //Voltage should be higher / lower on the m11 based on if it is generating or not
     //but the lower the network load, the smaller the difference from the m31
@@ -58,6 +59,7 @@ function generate_m11_fake_data(simulation_conditions) {
         devicename: M11_name,
         ...voltage_pq_red,
         ...current_pq_red,
+        ...power_pq_red
     }
     postgres_manager.Query('INSERT INTO public.fake_data VALUES(${this:csv})', m11_data);
 }
@@ -70,12 +72,14 @@ function generate_m31_fake_data(simulation_conditions) {
     for (let phase_id = 0; phase_id <= 2; phase_id++) {
         let voltage_pq = generate_pq_readings("voltage", fake_readings["M31"].voltage[phase_id])
         let current_pq = generate_pq_readings("current", fake_readings["M31"].current[phase_id])
+        let power_pq = generate_pq_readings("power", fake_readings["M31"].power[phase_id])
         let m31_data = {
             time: new Date(),
             phase: phase_id,
             devicename: M31_name,
             ...voltage_pq,
-            ...current_pq
+            ...current_pq,
+            ...power_pq
         }
         postgres_manager.Query('INSERT INTO public.fake_data VALUES(${this:csv})', m31_data);
     }
@@ -104,6 +108,11 @@ function generate_fake_readings(simulation_conditions) {
         //generate fake current readings for each phase
         for (let phase_id in device.current) {
             device.current[phase_id].push(fake_current_reading({ simulation_conditions, device_name, phase_id }))
+        }
+        //generate fake power readings for each phase
+        //must be called after fake voltage and current
+        for (let phase_id in device.current) {
+            device.power[phase_id].push(fake_power_reading(device,phase_id))
         }
     }
 }
@@ -147,6 +156,10 @@ function generate_pq_readings(reading_name_prefix, data_array) {
     return readings
 }
 
+function fake_power_reading(device,phase_id){
+    return device.voltage[phase_id][device.voltage[phase_id].length-1]*device.current[phase_id][device.current[phase_id].length-1]
+}
+
 function fake_voltage_reading({ simulation_conditions }) {
     let { network_load_float } = simulation_conditions
     let min_voltage = 239 - (network_load_float * 10)
@@ -158,7 +171,7 @@ function fake_voltage_reading({ simulation_conditions }) {
 function fake_current_reading({ simulation_conditions, phase_id, device_name }) {
     let current = 0
     if (device_name == M31_name) {
-        current += 150
+        current += 225*simulation_conditions.network_load_float
     }
 
     if (phase_id == M11_phase) {
