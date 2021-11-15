@@ -18,11 +18,13 @@ const M31_name = "M31"
 let fake_readings = {
     "M11": {
         voltage: { 0: [] },
-        current: { 0: [] }
+        current: { 0: [] },
+        power: { 0: [] }
     },
     "M31": {
         voltage: { 0: [], 1: [], 2: [] },
-        current: { 0: [], 1: [], 2: [] }
+        current: { 0: [], 1: [], 2: [] },
+        power: { 0: [], 1: [], 2: [] },
     }
 }
 
