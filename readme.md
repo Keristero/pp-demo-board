@@ -5,8 +5,7 @@ first generate a docker-compose using IoT stack, installing postgres and grafana
 connect to postgres and run
 ```sql
 CREATE TABLE fake_data(  
-    id SERIAL NOT NULL primary key,
-    time TIMESTAMP WITH TIME ZONE,
+    time TIMESTAMPTZ,
     phase NUMERIC,
     devicename varchar(255),
     voltagemin NUMERIC,
@@ -23,12 +22,16 @@ CREATE TABLE fake_data(
 
 ```sql
 CREATE TABLE fake_alarms(  
-    id SERIAL NOT NULL primary key,
-    time TIMESTAMP WITH TIME ZONE,
+    time TIMESTAMPTZ,
     type varchar(255),
     devicename varchar(255)
 )
 ```
+# set up arduino
+## install nodebots interchange
+`npm install -g nodebots-interchange`
+## install standard firmata firmware
+`interchange install StandardFirmata -a uno`
 
 # install
 first install node with nvm if it is not already installed
@@ -40,6 +43,8 @@ then open the nvm.sh script and add this to the last line
 `npm install`
 
 # running
+`alias node='$NVM_BIN/node'`
+
 `alias sudo='sudo '`
 it needs to be run as root for GPIO access
 `sudo node main.js`
