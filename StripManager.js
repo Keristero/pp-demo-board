@@ -3,11 +3,11 @@ const { rgb_to_decimal } = require('./helpers.js')
 const ws281x = require('rpi-ws281x');
 
 class StripManager {
-    constructor() {
+    constructor(leds,gpio) {
         // Set my Neopixel configuration
         this.config = {
-            leds: LEDS_TOTAL,
-            gpio: LEDS_GPIO,
+            leds: leds,
+            gpio: gpio,
             stripType: LEDS_TYPE,
             dma: LEDS_DMA
         };
