@@ -46,5 +46,7 @@ then open the nvm.sh script and add this to the last line
 `alias node='$NVM_BIN/node'`
 
 `alias sudo='sudo '`
+
 it needs to be run as root for GPIO access
+
 `sudo node main.js`

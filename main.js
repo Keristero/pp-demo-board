@@ -126,17 +126,20 @@ function set_net_relay_state(relay_gpio,state,last_state){
     }
 }
 
-var strip_manager = new StripManager();
-var leds = 0
-var gpio = 0
-
 if(DEMO_BOARD_TYPE == 1){
     //Original Board
+    let leds = 72
+    let gpio = 12
+    var strip_manager = new StripManager(leds,gpio);
     og_board_setup(strip_manager)
 }else if(DEMO_BOARD_TYPE == 2){
     //Pelican board
+    let leds = 109
+    let gpio = 21
+    var strip_manager = new StripManager(leds,gpio);
     pelican_board_setup(strip_manager)
 }
+
 
 //Main loop
 setInterval(() => {

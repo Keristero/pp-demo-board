@@ -7,7 +7,7 @@ function pelican_board_setup(strip_manager){
         start_led: 0,
         end_led: 108,
         flow_callback: ({solar_generation,hot_water,ev_charger,conductor_down}) => {
-            return 1
+            return 100
         },
     })
     strip_manager.add_animated_section(big_test)
