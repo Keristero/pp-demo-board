@@ -61,7 +61,7 @@ function pelican_board_setup(strip_manager){
             if (!conductor_down) {
                 consumption_multiplier = 1
             }
-            let direction = (!conductor_down * solar_generation * SOLAR_PANEL_POWER) + (((50 * network_load_float) + 15 + (hot_water * HOT_WATER_POWER) + (ev_charger * CAR_CHARGER_POWER)) * consumption_multiplier)
+            let direction = (!conductor_down * solar_generation * SOLAR_PANEL_POWER) + (((50 * network_load_float) + 15 + (hot_water * HOT_WATER_POWER) + (ev_charger * CAR_CHARGER_POWER)) * consumption_multiplier)*0.3
             return direction
         }
     })
