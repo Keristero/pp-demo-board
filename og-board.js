@@ -7,14 +7,16 @@ function og_board_setup(strip_manager) {
     //Pixel Indicators
     //
     let indicator_conductor_down = new PixelIndicatorSection({
-        led_index: 0,
+        start_led: 0,
+        end_led: 0,
         lit_callback: ({ conductor_down }) => { return conductor_down },
         on_rgb_color: { r: 255, g: 0, b: 0 }
     })
     strip_manager.add_animated_section(indicator_conductor_down)
 
     let indicator_ev_charging = new PixelIndicatorSection({
-        led_index: 1,
+        start_led: 1,
+        end_led: 1,
         lit_callback: ({ ev_charger }) => { return ev_charger },
         color_callback: () => {
             if (!this.sun_pulse) {
@@ -34,7 +36,8 @@ function og_board_setup(strip_manager) {
     strip_manager.add_animated_section(indicator_ev_charging)
 
     let indicator_day = new PixelIndicatorSection({
-        led_index: 2,
+        start_led: 2,
+        end_led: 2,
         lit_callback: ({ solar_generation }) => { return solar_generation },
         color_callback: () => {
             if (!this.sun_pulse) {
@@ -54,7 +57,8 @@ function og_board_setup(strip_manager) {
     strip_manager.add_animated_section(indicator_day)
 
     let indicator_hot_water = new PixelIndicatorSection({
-        led_index: 3,
+        start_led: 3,
+        end_led: 3,
         lit_callback: ({ hot_water }) => { return hot_water },
         color_callback: () => {
             if (!this.sun_pulse) {

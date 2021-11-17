@@ -1,12 +1,13 @@
 const {AnimatedSection} = require('./AnimatedSection')
 
 class PixelIndicatorSection extends AnimatedSection{
-    constructor({led_index,lit_callback,on_rgb_color,color_callback}){
-        super({start_led:led_index,end_led:led_index})
+    constructor({start_led,lit_callback,on_rgb_color,color_callback,end_led}){
+        super({start_led,end_led})
         this.lit_callback = lit_callback
         this.color_callback = color_callback
         this.on_rgb_color = on_rgb_color
         this.fade_speed = 5
+        this.length = (this.end_led-this.start_led)+1
     }
     /**
      * Updates the section of the strip array that this object is responsible for
@@ -20,7 +21,9 @@ class PixelIndicatorSection extends AnimatedSection{
             this.on_rgb_color = this.color_callback(demo_conditions)
         }
         if(lit){
-            this.SetRelativePixelColor(strip_array,0,this.on_rgb_color)
+            for(let i = 0; i < this.length; i++){
+                this.SetRelativePixelColor(strip_array,i,this.on_rgb_color)
+            }
         }
     }
 }

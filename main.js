@@ -16,16 +16,18 @@ var switch_state = false
 //235 low network load at house
 if(DEMO_BOARD_TYPE == 1){
     //Original Board
+    console.log("Using original demo board config")
 
     //input pin to data name mapping
     var analog_pins = {"A0":"network_load_pot"}
     var bool_pins = {"A1":"day_night","A2":"conductor_down","A3":"hot_water","A4":"ev_charger"}
 }else if(DEMO_BOARD_TYPE == 2){
     //Pelican board
+    console.log("Using pelican board config")
 
     //input pin to data name mapping
     var analog_pins = {"A0":"network_load_pot"}
-    var bool_pins = {"A1":"day_night","A2":"conductor_down","A3":"hot_water","A4":"ev_charger"}
+    var bool_pins = {"A1":"ev_charger","A2":"hot_water","A3":"conductor_down","A4":"day_night"}
 }
 
 let input_values = {
