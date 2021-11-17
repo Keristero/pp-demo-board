@@ -24,31 +24,40 @@ function pelican_board_setup(strip_manager){
     })
     strip_manager.add_animated_section(conductor_down_strip)
 
+    let m11_to_m31_flow_callback = function ({ solar_generation, hot_water, ev_charger, network_load_float, conductor_down }) {
+        let consumption_multiplier = CONDUCTOR_DOWN_ENERGY_MULTIPLIER
+        if (!conductor_down) {
+            consumption_multiplier = 1
+        }
+        let direction = (!conductor_down * solar_generation * SOLAR_PANEL_POWER) + (((50 * network_load_float) + 15 + (hot_water * HOT_WATER_POWER) + (ev_charger * CAR_CHARGER_POWER)) * consumption_multiplier)
+        return direction
+    }
+
     let m31_to_pole_s1 = new EnergyDirectionSection({
         start_led: 14,
         end_led: 44,
         reverse_direction: true,
-        flow_callback: ({ solar_generation, hot_water, ev_charger, network_load_float, conductor_down }) => {
-            let direction = 0
-            if (!conductor_down) {
-                direction = (solar_generation * SOLAR_PANEL_POWER) + (50 * network_load_float) + 15 + (hot_water * HOT_WATER_POWER) + (ev_charger * CAR_CHARGER_POWER)
-            }
-            return direction
-        },
+        flow_callback: m11_to_m31_flow_callback
     })
     strip_manager.add_animated_section(m31_to_pole_s1)
+
+    let m31_to_pole_s1_condutor_down = new EnergyDirectionSection({
+        start_led: 23,
+        end_led: 44,
+        reverse_direction: true,
+        flow_callback: () => {
+            let direction = null
+            return direction
+        },
+        pulse_for_conductor_down: true
+    })
+    strip_manager.add_animated_section(m31_to_pole_s1_condutor_down)
 
     let m31_to_pole_s2 = new EnergyDirectionSection({
         start_led: 45,
         end_led: 74,
         reverse_direction: true,
-        flow_callback: ({ solar_generation, hot_water, ev_charger, network_load_float, conductor_down }) => {
-            let direction = 0
-            if (!conductor_down) {
-                direction = (solar_generation * SOLAR_PANEL_POWER) + (50 * network_load_float) + 15 + (hot_water * HOT_WATER_POWER) + (ev_charger * CAR_CHARGER_POWER)
-            }
-            return direction
-        },
+        flow_callback:m11_to_m31_flow_callback
     })
     strip_manager.add_animated_section(m31_to_pole_s2)
 
