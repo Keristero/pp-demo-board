@@ -27,6 +27,8 @@ CREATE TABLE fake_alarms(
     devicename varchar(255)
 )
 ```
+# set up grafana
+log into the grafana web page and import `grafana-dashboard.json` to set up the dashboard
 # set up arduino
 ## install nodebots interchange
 `npm install -g nodebots-interchange`
@@ -50,3 +52,6 @@ then open the nvm.sh script and add this to the last line
 it needs to be run as root for GPIO access
 
 `sudo node main.js`
+
+# copy this device's sd
+https://github.com/billw2/rpi-clone

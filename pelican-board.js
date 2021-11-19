@@ -37,7 +37,13 @@ function pelican_board_setup(strip_manager){
         start_led: 14,
         end_led: 44,
         reverse_direction: true,
-        flow_callback: m11_to_m31_flow_callback
+        flow_callback: (parameters)=>{
+            if(parameters.conductor_down){
+                return 0
+            }else{
+                return m11_to_m31_flow_callback(parameters)
+            }
+        }
     })
     strip_manager.add_animated_section(m31_to_pole_s1)
 

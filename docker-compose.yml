@@ -9,3 +9,5 @@ services:
     network_mode: 'host'
     devices:
       - "/dev/ttyUSB*:/dev/ttyUSB*" 
+    environment:
+      - DEMO_BOARD_TYPE:2

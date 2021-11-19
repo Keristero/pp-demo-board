@@ -1,0 +1,1241 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 0,
+  "id": 1,
+  "links": [],
+  "panels": [
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      },
+      "hiddenSeries": false,
+      "id": 12,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "7.5.6",
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [
+        {
+          "$$hashKey": "object:159",
+          "alias": "/red/",
+          "color": "#F2495C"
+        },
+        {
+          "$$hashKey": "object:169",
+          "alias": "/white/",
+          "color": "rgb(196, 196, 196)"
+        },
+        {
+          "$$hashKey": "object:263",
+          "alias": "/blue/",
+          "color": "#5794F2"
+        },
+        {
+          "$$hashKey": "object:502",
+          "alias": "/min/",
+          "lines": false
+        },
+        {
+          "$$hashKey": "object:509",
+          "alias": "/max/",
+          "lines": false
+        },
+        {
+          "$$hashKey": "object:516",
+          "alias": "/sma/",
+          "fill": 0
+        },
+        {
+          "$$hashKey": "object:548",
+          "alias": "redmax",
+          "fillBelowTo": "redmin"
+        },
+        {
+          "$$hashKey": "object:566",
+          "alias": "whitemax",
+          "fillBelowTo": "whitemin"
+        },
+        {
+          "$$hashKey": "object:582",
+          "alias": "bluemax",
+          "fillBelowTo": "bluemin"
+        }
+      ],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "select\n  time,\n  powermin as redmin,\n  powersma as redsma,\n  powermax as redmax\nFROM fake_data\nWHERE devicename = 'M11'\nORDER BY 1",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "phase"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "fake_data",
+          "timeColumn": "\"timestamp\"",
+          "timeColumnType": "timestamp",
+          "where": []
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "M11 power",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "transparent": true,
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "$$hashKey": "object:129",
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "$$hashKey": "object:130",
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 12,
+        "y": 0
+      },
+      "hiddenSeries": false,
+      "id": 15,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "7.5.6",
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [
+        {
+          "$$hashKey": "object:159",
+          "alias": "/red/",
+          "color": "#F2495C"
+        },
+        {
+          "$$hashKey": "object:169",
+          "alias": "/white/",
+          "color": "rgb(196, 196, 196)"
+        },
+        {
+          "$$hashKey": "object:263",
+          "alias": "/blue/",
+          "color": "#5794F2"
+        },
+        {
+          "$$hashKey": "object:502",
+          "alias": "/min/",
+          "lines": false
+        },
+        {
+          "$$hashKey": "object:509",
+          "alias": "/max/",
+          "lines": false
+        },
+        {
+          "$$hashKey": "object:516",
+          "alias": "/sma/",
+          "fill": 0
+        },
+        {
+          "$$hashKey": "object:548",
+          "alias": "redmax",
+          "fillBelowTo": "redmin"
+        },
+        {
+          "$$hashKey": "object:566",
+          "alias": "whitemax",
+          "fillBelowTo": "whitemin"
+        },
+        {
+          "$$hashKey": "object:582",
+          "alias": "bluemax",
+          "fillBelowTo": "bluemin"
+        }
+      ],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "select\n  time,\n  powermin as redmin,\n  powersma as redsma,\n  powermax as redmax\nFROM fake_data\nWHERE devicename = 'M31' AND phase = 0\nORDER BY 1",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "phase"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "fake_data",
+          "timeColumn": "\"timestamp\"",
+          "timeColumnType": "timestamp",
+          "where": []
+        },
+        {
+          "format": "time_series",
+          "group": [],
+          "hide": false,
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "select\n  time,\n  powermin as whitemin,\n  powersma as whitesma,\n  powermax as whitemax\nFROM fake_data\nWHERE devicename = 'M31' AND phase = 1\nORDER BY 1",
+          "refId": "B",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        },
+        {
+          "format": "time_series",
+          "group": [],
+          "hide": false,
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "select\n  time,\n  powermin as bluemin,\n  powersma as bluesma,\n  powermax as bluemax\nFROM fake_data\nWHERE devicename = 'M31' AND phase = 2\nORDER BY 1",
+          "refId": "C",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "M31 power",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "transparent": true,
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "$$hashKey": "object:129",
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "$$hashKey": "object:130",
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 0,
+        "y": 9
+      },
+      "hiddenSeries": false,
+      "id": 10,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "7.5.6",
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [
+        {
+          "$$hashKey": "object:159",
+          "alias": "/red/",
+          "color": "#F2495C"
+        },
+        {
+          "$$hashKey": "object:169",
+          "alias": "/white/",
+          "color": "rgb(196, 196, 196)"
+        },
+        {
+          "$$hashKey": "object:263",
+          "alias": "/blue/",
+          "color": "#5794F2"
+        },
+        {
+          "$$hashKey": "object:502",
+          "alias": "/min/",
+          "lines": false
+        },
+        {
+          "$$hashKey": "object:509",
+          "alias": "/max/",
+          "lines": false
+        },
+        {
+          "$$hashKey": "object:516",
+          "alias": "/sma/",
+          "fill": 0
+        },
+        {
+          "$$hashKey": "object:548",
+          "alias": "redmax",
+          "fillBelowTo": "redmin"
+        },
+        {
+          "$$hashKey": "object:566",
+          "alias": "whitemax",
+          "fillBelowTo": "whitemin"
+        },
+        {
+          "$$hashKey": "object:582",
+          "alias": "bluemax",
+          "fillBelowTo": "bluemin"
+        }
+      ],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "select\n  time,\n  voltagemin as redmin,\n  voltagesma as redsma,\n  voltagemax as redmax\nFROM fake_data\nWHERE devicename = 'M11'\nORDER BY 1",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "phase"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "fake_data",
+          "timeColumn": "\"timestamp\"",
+          "timeColumnType": "timestamp",
+          "where": []
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "M11 voltage",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "transparent": true,
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "$$hashKey": "object:129",
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "$$hashKey": "object:130",
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 12,
+        "y": 9
+      },
+      "hiddenSeries": false,
+      "id": 5,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "7.5.6",
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [
+        {
+          "$$hashKey": "object:159",
+          "alias": "/red/",
+          "color": "#F2495C"
+        },
+        {
+          "$$hashKey": "object:169",
+          "alias": "/white/",
+          "color": "rgb(196, 196, 196)"
+        },
+        {
+          "$$hashKey": "object:263",
+          "alias": "/blue/",
+          "color": "#5794F2"
+        },
+        {
+          "$$hashKey": "object:502",
+          "alias": "/min/",
+          "lines": false
+        },
+        {
+          "$$hashKey": "object:509",
+          "alias": "/max/",
+          "lines": false
+        },
+        {
+          "$$hashKey": "object:516",
+          "alias": "/sma/",
+          "fill": 0
+        },
+        {
+          "$$hashKey": "object:548",
+          "alias": "redmax",
+          "fillBelowTo": "redmin"
+        },
+        {
+          "$$hashKey": "object:566",
+          "alias": "whitemax",
+          "fillBelowTo": "whitemin"
+        },
+        {
+          "$$hashKey": "object:582",
+          "alias": "bluemax",
+          "fillBelowTo": "bluemin"
+        }
+      ],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "select\n  time,\n  voltagemin as redmin,\n  voltagesma as redsma,\n  voltagemax as redmax\nFROM fake_data\nWHERE devicename = 'M31' AND phase = 0\nORDER BY 1",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "phase"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "fake_data",
+          "timeColumn": "\"timestamp\"",
+          "timeColumnType": "timestamp",
+          "where": []
+        },
+        {
+          "format": "time_series",
+          "group": [],
+          "hide": false,
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "select\n  time,\n  voltagemin as whitemin,\n  voltagesma as whitesma,\n  voltagemax as whitemax\nFROM fake_data\nWHERE devicename = 'M31' AND phase = 1\nORDER BY 1",
+          "refId": "B",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        },
+        {
+          "format": "time_series",
+          "group": [],
+          "hide": false,
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "select\n  time,\n  voltagemin as bluemin,\n  voltagesma as bluesma,\n  voltagemax as bluemax\nFROM fake_data\nWHERE devicename = 'M31' AND phase = 2\nORDER BY 1",
+          "refId": "C",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "M31 voltage",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "transparent": true,
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "$$hashKey": "object:129",
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "$$hashKey": "object:130",
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": null,
+            "filterable": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 24,
+        "x": 0,
+        "y": 18
+      },
+      "id": 8,
+      "options": {
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "time"
+          }
+        ]
+      },
+      "pluginVersion": "7.5.6",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "type",
+          "rawQuery": true,
+          "rawSql": "select\n  time,\n  type,\n  devicename\nFROM fake_alarms\nORDER BY 1",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "fake_alarms",
+          "timeColumn": "\"time\"",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Panel Title",
+      "type": "table"
+    },
+    {
+      "collapsed": false,
+      "datasource": null,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 25
+      },
+      "id": 14,
+      "panels": [],
+      "title": "Current",
+      "type": "row"
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 0,
+        "y": 26
+      },
+      "hiddenSeries": false,
+      "id": 9,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "7.5.6",
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [
+        {
+          "$$hashKey": "object:159",
+          "alias": "/red/",
+          "color": "#F2495C"
+        },
+        {
+          "$$hashKey": "object:169",
+          "alias": "/white/",
+          "color": "rgb(196, 196, 196)"
+        },
+        {
+          "$$hashKey": "object:263",
+          "alias": "/blue/",
+          "color": "#5794F2"
+        },
+        {
+          "$$hashKey": "object:502",
+          "alias": "/min/",
+          "lines": false
+        },
+        {
+          "$$hashKey": "object:509",
+          "alias": "/max/",
+          "lines": false
+        },
+        {
+          "$$hashKey": "object:516",
+          "alias": "/sma/",
+          "fill": 0
+        },
+        {
+          "$$hashKey": "object:548",
+          "alias": "redmax",
+          "fillBelowTo": "redmin"
+        },
+        {
+          "$$hashKey": "object:566",
+          "alias": "whitemax",
+          "fillBelowTo": "whitemin"
+        },
+        {
+          "$$hashKey": "object:582",
+          "alias": "bluemax",
+          "fillBelowTo": "bluemin"
+        }
+      ],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "select\n  time,\n  currentmin as redmin,\n  currentsma as redsma,\n  currentmax as redmax\nFROM fake_data\nWHERE devicename = 'M11'\nORDER BY 1",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "phase"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "fake_data",
+          "timeColumn": "\"timestamp\"",
+          "timeColumnType": "timestamp",
+          "where": []
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "M11 current",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "transparent": true,
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "$$hashKey": "object:129",
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "$$hashKey": "object:130",
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 12,
+        "y": 26
+      },
+      "hiddenSeries": false,
+      "id": 11,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "7.5.6",
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [
+        {
+          "$$hashKey": "object:159",
+          "alias": "/red/",
+          "color": "#F2495C"
+        },
+        {
+          "$$hashKey": "object:169",
+          "alias": "/white/",
+          "color": "rgb(196, 196, 196)"
+        },
+        {
+          "$$hashKey": "object:263",
+          "alias": "/blue/",
+          "color": "#5794F2"
+        },
+        {
+          "$$hashKey": "object:502",
+          "alias": "/min/",
+          "fill": 0,
+          "lines": false
+        },
+        {
+          "$$hashKey": "object:509",
+          "alias": "/max/",
+          "lines": false
+        },
+        {
+          "$$hashKey": "object:516",
+          "alias": "/sma/",
+          "fill": 0
+        },
+        {
+          "$$hashKey": "object:548",
+          "alias": "redmax",
+          "fillBelowTo": "redmin"
+        },
+        {
+          "$$hashKey": "object:566",
+          "alias": "whitemax",
+          "fillBelowTo": "whitemin"
+        },
+        {
+          "$$hashKey": "object:582",
+          "alias": "bluemax",
+          "fillBelowTo": "bluemin"
+        }
+      ],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "select\n  time,\n  currentmin as redmin,\n  currentsma as redsma,\n  currentmax as redmax\nFROM fake_data\nWHERE devicename = 'M31' AND phase = 0\nORDER BY 1",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "phase"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "fake_data",
+          "timeColumn": "\"timestamp\"",
+          "timeColumnType": "timestamp",
+          "where": []
+        },
+        {
+          "format": "time_series",
+          "group": [],
+          "hide": false,
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "select\n  time,\n  currentmin as whitemin,\n  currentsma as whitesma,\n  currentmax as whitemax\nFROM fake_data\nWHERE devicename = 'M31' AND phase = 1\nORDER BY 1",
+          "refId": "B",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        },
+        {
+          "format": "time_series",
+          "group": [],
+          "hide": false,
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "select\n  time,\n  currentmin as bluemin,\n  currentsma as bluesma,\n  currentmax as bluemax\nFROM fake_data\nWHERE devicename = 'M31' AND phase = 2\nORDER BY 1",
+          "refId": "C",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "M31 current",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "transparent": true,
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "$$hashKey": "object:129",
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "$$hashKey": "object:130",
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    }
+  ],
+  "refresh": false,
+  "schemaVersion": 27,
+  "style": "dark",
+  "tags": [],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "2021-06-05T10:53:18.072Z",
+    "to": "2021-06-05T10:55:23.148Z"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "draft dashboard",
+  "uid": "XVDC1AWgk",
+  "version": 9
+}
