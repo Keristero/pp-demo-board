@@ -152,6 +152,14 @@ function pelican_board_setup(strip_manager){
         on_rgb_color: { r: 255, g: 0, b: 0 }
     })
     strip_manager.add_animated_section(indicator_conductor_down)
+
+    let indicator_rcd = new PixelIndicatorSection({
+        start_led: 107,
+        end_led: 107,
+        lit_callback: ({ rcd_switch }) => { return !rcd_switch },
+        on_rgb_color: { r: 255, g: 0, b: 0 }
+    })
+    strip_manager.add_animated_section(indicator_rcd)
 }
 
 module.exports = {pelican_board_setup}

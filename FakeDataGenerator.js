@@ -29,6 +29,7 @@ let fake_readings = {
 }
 
 let last_conductor_down_alarm_state = false
+let last_rcd_alarm_state = false
 
 postgres_manager.Query('DELETE from fake_data');
 
@@ -71,6 +72,10 @@ function generate_m31_fake_data(simulation_conditions) {
         generate_conductor_down_alarm(simulation_conditions.conductor_down)
         last_conductor_down_alarm_state = simulation_conditions.conductor_down
     }
+    if (simulation_conditions.rcd_switch != last_rcd_alarm_state) {
+        generate_rcd_alarm(simulation_conditions.rcd_switch)
+        last_rcd_alarm_state = simulation_conditions.rcd_switch
+    }
     for (let phase_id = 0; phase_id <= 2; phase_id++) {
         let voltage_pq = generate_pq_readings("voltage", fake_readings["M31"].voltage[phase_id])
         let current_pq = generate_pq_readings("current", fake_readings["M31"].current[phase_id])
@@ -85,6 +90,17 @@ function generate_m31_fake_data(simulation_conditions) {
         }
         postgres_manager.Query('INSERT INTO public.fake_data VALUES(${this:csv})', m31_data);
     }
+}
+
+function generate_rcd_alarm(rcd_state) {
+    let alarm_type = rcd_state ? "RCD on" : "RCD off"
+    let alarm = {
+        time: new Date(),
+        type: alarm_type,
+        devicename: M11_name
+    }
+    console.log('new alarm', alarm)
+    postgres_manager.Query('INSERT INTO public.fake_alarms VALUES(${this:csv})', alarm);
 }
 
 function generate_conductor_down_alarm(conductor_is_down) {
