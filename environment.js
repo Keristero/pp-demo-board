@@ -13,7 +13,8 @@ const environment = {
     HOT_WATER_POWER:12,
     CAR_CHARGER_POWER:12,
     CONDUCTOR_DOWN_ENERGY_MULTIPLIER:0.25,
-    DEMO_BOARD_TYPE:2,//1 = original, 2 = pelican
+    DEMO_BOARD_TYPE:parseInt(process.env.DEMO_BOARD_TYPE || 2),//1 = original, 2 = pelican
+    STARTUP_DATE:(process.env.STARTUP_DATE || false),
 }
 
 console.log("Loaded environment variables",environment)

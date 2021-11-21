@@ -10,4 +10,5 @@ services:
     devices:
       - "/dev/ttyUSB*:/dev/ttyUSB*" 
     environment:
-      - DEMO_BOARD_TYPE:2
+      - DEMO_BOARD_TYPE=2
+      - STARTUP_DATE=20210121 10:00:00
