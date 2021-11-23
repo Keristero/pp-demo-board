@@ -8,7 +8,6 @@ const { og_board_setup } = require('./og-board')
 const five = require("johnny-five");
 var pot_reading;
 var switch_state = false
-let recent_bool_pin_readings = {}
 
 let { exec } = require('child_process')
 
@@ -82,35 +81,16 @@ board.on("ready", () => {
         }
     }, 250);
 
-    const average_array = arr => arr.reduce((a,b) => a + b, 0) / arr.length;
-
     //Read switch inputs
     for (let pin_id in bool_pins) {
         let name = bool_pins[pin_id]
         let pin = new five.Pin({ pin: pin_id, type: "analog", mode: 0, isPullup: true });
         pin.read((err, value) => {
-            if(!recent_bool_pin_readings[pin_id]){
-                recent_bool_pin_readings[pin_id] = []
-            }else{
-                recent_bool_pin_readings[pin_id].push(value)
-                if(recent_bool_pin_readings[pin_id].length > 30){
-                    recent_bool_pin_readings[pin_id].shift()
-                }
-                var average = average_array(recent_bool_pin_readings[pin_id])
-            }
-            if(average){
-                if (average > 1000) {
-                    input_values[name] = true
-                } else {
-                    input_values[name] = false
-                }
-            }else{
-                //normal old code
-                if (value > 1000) {
-                    input_values[name] = true
-                } else {
-                    input_values[name] = false
-                }
+            //normal old code
+            if (value > 1000) {
+                input_values[name] = true
+            } else {
+                input_values[name] = false
             }
         })
     }
