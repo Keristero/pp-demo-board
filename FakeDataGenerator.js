@@ -93,7 +93,7 @@ function generate_m31_fake_data(simulation_conditions) {
 }
 
 function generate_rcd_alarm(rcd_state) {
-    let alarm_type = rcd_state ? "RCD on" : "RCD off"
+    let alarm_type = rcd_state ? "RCD closed" : "RCD open"
     let alarm = {
         time: new Date(),
         type: alarm_type,
