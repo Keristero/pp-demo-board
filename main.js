@@ -120,7 +120,7 @@ function determineNetworkConditions({ network_load_pot, day_night, hot_water, ev
         ev_charger: true,
         high_network_load: false,
         solar_generation: false,
-        conductor_down: conductor_down,
+        conductor_down: !conductor_down,
         rcd_switch: rcd_switch
     }
     //Read pot with debounce
